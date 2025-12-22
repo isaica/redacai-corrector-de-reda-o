@@ -17,6 +17,7 @@ const Index = () => {
   const [score, setScore] = useState<number | null>(null);
   const [usageToday, setUsageToday] = useState(0);
   const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
+  const plansSectionId = "planos";
 
   // Controle simples em localStorage para modo gratuito
   useEffect(() => {
@@ -46,6 +47,14 @@ const Index = () => {
       title: "Crédito liberado para teste",
       description: "Liberamos mais 1 correção gratuita para hoje.",
     });
+  };
+
+  const handleOpenPlans = () => {
+    setIsLimitDialogOpen(true);
+    const section = document.getElementById(plansSectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   const handleEvaluate = () => {
@@ -120,7 +129,7 @@ Em um cenário real de ENEM, esta redação teria boa chance de alcançar acima 
             <Button size="sm" variant="ghost" className="text-xs font-medium text-muted-foreground">
               Entrar
             </Button>
-            <Button size="sm" variant="hero" className="text-xs font-medium">
+            <Button size="sm" variant="hero" className="text-xs font-medium" onClick={handleOpenPlans}>
               Ver planos
             </Button>
           </div>
