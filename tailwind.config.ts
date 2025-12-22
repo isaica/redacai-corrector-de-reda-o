@@ -63,6 +63,9 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+      },
       keyframes: {
         "accordion-down": {
           from: {
@@ -80,10 +83,15 @@ export default {
             height: "0",
           },
         },
+        "pulse-soft": {
+          from: { boxShadow: "0 0 0 0 hsl(var(--ring) / 0.4)" },
+          to: { boxShadow: "0 0 0 18px hsl(var(--ring) / 0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-soft": "pulse-soft 1.8s ease-out infinite",
       },
     },
   },
