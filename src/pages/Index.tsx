@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 
 const FREE_DAILY_LIMIT = 2;
@@ -15,6 +16,7 @@ const Index = () => {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
   const [usageToday, setUsageToday] = useState(0);
+  const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
   // Controle simples em localStorage para modo gratuito
   useEffect(() => {
@@ -34,6 +36,18 @@ const Index = () => {
 
   const remaining = useMemo(() => Math.max(FREE_DAILY_LIMIT - usageToday, 0), [usageToday]);
 
+  const handleGrantTestCredit = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const nextCount = Math.max(FREE_DAILY_LIMIT - 1, 0);
+    window.localStorage.setItem("redacai-usage", JSON.stringify({ date: today, count: nextCount }));
+    setUsageToday(nextCount);
+    setIsLimitDialogOpen(false);
+    toast({
+      title: "Crédito liberado para teste",
+      description: "Liberamos mais 1 correção gratuita para hoje.",
+    });
+  };
+
   const handleEvaluate = () => {
     if (!essay.trim()) {
       toast({
@@ -45,11 +59,7 @@ const Index = () => {
     }
 
     if (remaining <= 0) {
-      toast({
-        title: "Limite diário atingido",
-        description: "Você já usou suas 2 correções gratuitas de hoje. Conheça os planos para continuar praticando.",
-        variant: "destructive",
-      });
+      setIsLimitDialogOpen(true);
       return;
     }
 
@@ -131,7 +141,8 @@ Em um cenário real de ENEM, esta redação teria boa chance de alcançar acima 
             </div>
             <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Modo gratuito: {FREE_DAILY_LIMIT} correções/dia sem cadastro
+              <span className="font-semibold">Créditos gratuitos: {remaining}</span>
+              <span className="text-[0.7rem] text-secondary-foreground/80">de {FREE_DAILY_LIMIT} disponíveis hoje</span>
             </div>
           </div>
         </section>
@@ -159,11 +170,11 @@ Em um cenário real de ENEM, esta redação teria boa chance de alcançar acima 
               <div className="flex flex-col justify-between gap-3 border-t border-dashed border-border/70 pt-3 text-xs text-muted-foreground md:flex-row md:items-center">
                 <div className="flex flex-wrap items-center gap-2">
                   <span>
-                    Correções hoje: <span className="font-semibold text-foreground">{usageToday}</span> / {FREE_DAILY_LIMIT}
+                    Créditos grátis usados hoje: <span className="font-semibold text-foreground">{usageToday}</span> / {FREE_DAILY_LIMIT}
                   </span>
                   <span className="hidden text-muted-foreground md:inline">•</span>
                   <span>
-                    Restam <span className="font-semibold text-foreground">{remaining}</span> correções gratuitas hoje.
+                    Restam <span className="font-semibold text-foreground">{remaining}</span> créditos gratuitos hoje.
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -251,64 +262,146 @@ Em um cenário real de ENEM, esta redação teria boa chance de alcançar acima 
         <section id="planos" className="mt-2 space-y-3 border-t border-dashed border-border/70 pt-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
-              <h2 className="text-sm font-semibold tracking-tight">Planos para levar suas redações a outro nível</h2>
-              <p className="text-xs text-muted-foreground max-w-2xl">
-                Comece grátis com até {FREE_DAILY_LIMIT} correções diárias. Quando estiver pronto para intensificar os estudos, migre para um plano
-                com limite mensal ampliado e histórico de redações.
+              <h2 className="text-sm font-semibold tracking-tight">Escolha seu plano de créditos</h2>
+              <p className="max-w-2xl text-xs text-muted-foreground">
+                Comece grátis com {FREE_DAILY_LIMIT} créditos diários. Quando quiser intensificar os estudos, escolha um plano de
+                créditos que acompanhe o seu ritmo.
               </p>
             </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3">
-            <Card className="border border-border/80 bg-card/80">
+            <Card className="border border-primary/60 bg-card/90 shadow-[var(--shadow-soft)]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm">Gratuito</CardTitle>
-                <CardDescription className="text-xs">Ideal para testar o RedacAI e praticar ocasionalmente.</CardDescription>
+                <CardDescription className="text-xs">Ideal para começar a praticar sem compromisso.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-xs">
                 <p className="text-2xl font-semibold">R$ 0</p>
                 <ul className="space-y-1.5 text-muted-foreground">
-                  <li>• {FREE_DAILY_LIMIT} correções por dia</li>
+                  <li>• {FREE_DAILY_LIMIT} créditos gratuitos por dia</li>
+                  <li>• Sem cadastro obrigatório</li>
                   <li>• Foco em redações estilo ENEM</li>
-                  <li>• Feedback instantâneo fictício (nesta versão)</li>
                 </ul>
+                <Button size="sm" variant="outline" className="mt-1 w-full text-xs font-medium">
+                  Usar versão gratuita
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="relative border border-primary/40 bg-gradient-to-tr from-primary-soft/60 to-background shadow-[var(--shadow-soft)]">
-              <div className="absolute right-3 top-3 rounded-full bg-primary px-2 py-0.5 text-[0.65rem] font-semibold text-primary-foreground">
-                Em breve
-              </div>
+            <Card className="relative border border-border/80 bg-card/80">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Plano Intensivo</CardTitle>
-                <CardDescription className="text-xs">Para quem faz redações toda semana.</CardDescription>
+                <CardTitle className="text-sm">30 créditos</CardTitle>
+                <CardDescription className="text-xs">Para um mês de prática consistente.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-xs">
-                <p className="text-2xl font-semibold">R$ 29/mês</p>
+                <p className="text-2xl font-semibold">R$ 29,90/mês</p>
                 <ul className="space-y-1.5 text-muted-foreground">
-                  <li>• 40 a 60 correções por mês</li>
-                  <li>• Histórico de redações corrigidas</li>
-                  <li>• Feedback detalhado por competência</li>
+                  <li>• 30 créditos de correção por mês</li>
+                  <li>• Ideal para 1 redação por dia útil</li>
+                  <li>• Acesso prioritário às novas funcionalidades</li>
                 </ul>
+                <Button
+                  size="sm"
+                  variant="hero"
+                  className="mt-1 w-full text-xs font-medium"
+                  onClick={handleGrantTestCredit}
+               >
+                  Escolher plano 30 créditos (teste)
+                </Button>
               </CardContent>
             </Card>
 
             <Card className="border border-border/80 bg-card/80">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Plano Turbo</CardTitle>
-                <CardDescription className="text-xs">Para cursinhos, professores e alunos avançados.</CardDescription>
+                <CardTitle className="text-sm">100 créditos</CardTitle>
+                <CardDescription className="text-xs">Para maratonar redações e simulados.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3 text-xs">
-                <p className="text-2xl font-semibold">R$ 59/mês</p>
+                <p className="text-2xl font-semibold">R$ 49,90/mês</p>
                 <ul className="space-y-1.5 text-muted-foreground">
-                  <li>• 120+ correções por mês</li>
-                  <li>• Espaço para múltiplos perfis de aluno</li>
-                  <li>• Priorização nas filas de correção</li>
+                  <li>• 100 créditos de correção por mês</li>
+                  <li>• Ideal para alunos e cursinhos intensivos</li>
+                  <li>• Recursos avançados de acompanhamento (em breve)</li>
                 </ul>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-1 w-full text-xs font-medium"
+                  onClick={handleGrantTestCredit}
+               >
+                  Escolher plano 100 créditos (teste)
+                </Button>
               </CardContent>
             </Card>
           </div>
         </section>
+
+        <Dialog open={isLimitDialogOpen} onOpenChange={setIsLimitDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Você atingiu o limite de hoje</DialogTitle>
+              <DialogDescription>
+                Você já usou todos os seus créditos gratuitos de hoje. Escolha um plano para ver como os créditos vão funcionar
+                no RedacAI. Por enquanto, ao escolher um plano liberamos mais 1 crédito para testes.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 text-xs">
+              <div className="rounded-md bg-secondary/60 p-3 text-secondary-foreground">
+                <p className="text-[0.8rem] font-semibold">Créditos gratuitos</p>
+                <p className="text-[0.74rem] text-secondary-foreground/90">
+                  Hoje você já usou {usageToday} de {FREE_DAILY_LIMIT} créditos grátis. Ao selecionar um plano abaixo, vamos
+                  liberar mais 1 crédito para você testar a correção novamente.
+                </p>
+              </div>
+              <div className="grid gap-2 md:grid-cols-3">
+                <Card className="border border-border/80 bg-card/80">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-[0.8rem]">30 créditos</CardTitle>
+                    <CardDescription className="text-[0.7rem]">R$ 29,90/mês</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-[0.7rem]">
+                    <p>Para quem faz redações com frequência moderada.</p>
+                    <Button size="sm" variant="hero" className="mt-1 w-full" onClick={handleGrantTestCredit}>
+                      Testar com +1 crédito
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-primary/60 bg-card/90 shadow-[var(--shadow-soft)]">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-[0.8rem]">100 créditos</CardTitle>
+                    <CardDescription className="text-[0.7rem]">R$ 49,90/mês</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-[0.7rem]">
+                    <p>Para quem quer treinar intensamente até o ENEM.</p>
+                    <Button size="sm" variant="hero" className="mt-1 w-full" onClick={handleGrantTestCredit}>
+                      Testar com +1 crédito
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-border/80 bg-card/80">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-[0.8rem]">Infinitas avaliações</CardTitle>
+                    <CardDescription className="text-[0.7rem]">R$ 99,90/mês</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-[0.7rem]">
+                    <p>Para quem quer corrigir quantas redações quiser.</p>
+                    <Button size="sm" variant="outline" className="mt-1 w-full" onClick={handleGrantTestCredit}>
+                      Testar com +1 crédito
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            <DialogFooter className="mt-2">
+              <Button variant="ghost" size="sm" onClick={() => setIsLimitDialogOpen(false)}>
+                Continuar mais tarde
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <footer className="border-t border-border/60 pt-4 text-xs text-muted-foreground">
           <div className="flex flex-col justify-between gap-2 pb-4 md:flex-row md:items-center">
