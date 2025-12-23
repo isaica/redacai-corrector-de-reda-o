@@ -57,7 +57,7 @@ const Index = () => {
     }
   };
 
-  const handleEvaluate = () => {
+  const handleEvaluate = async () => {
     if (!essay.trim()) {
       toast({
         title: "Redação vazia",
@@ -76,32 +76,49 @@ const Index = () => {
     setFeedback(null);
     setScore(null);
 
-    // Simulação de avaliação por IA (fictícia neste MVP)
-    setTimeout(() => {
-      const simulatedScore = 860;
-      const simulatedFeedback = `Sua redação demonstra boa compreensão da proposta e articula argumentos de forma consistente.
+    try {
+      const response = await fetch("https://vehesel.app.n8n.cloud/webhook-test/f1561a92-e4da-4a41-b98d-e6e9a315a5a3", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          redacao: essay,
+        }),
+      });
 
-Pontos fortes:
-• Tese clara logo na introdução, alinhada ao tema proposto.
-• Uso adequado de conectivos, garantindo coesão entre os parágrafos.
-• Proposta de intervenção detalhada, com agente, ação, meio, efeito e modo.
+      if (!response.ok) {
+        throw new Error("Erro ao processar a redação");
+      }
 
-O que pode melhorar:
-• Aumentar a variedade vocabular para evitar repetições excessivas de termos-chave.
-• Revisar alguns períodos muito longos, dividindo-os em frases mais curtas para facilitar a leitura.
-• Explorar mais um repertório sociocultural legitimado (dados, citações ou fatos históricos) para fortalecer os argumentos.
+      const data = await response.json();
+      
+      // Adapte conforme a estrutura de resposta do seu webhook
+      const evaluationScore = data.score || data.nota || 0;
+      const evaluationFeedback = data.feedback || data.avaliacao || "Avaliação processada com sucesso.";
 
-Em um cenário real de ENEM, esta redação teria boa chance de alcançar acima de 800 pontos, com margem para se aproximar da nota máxima com ajustes finos em repertório e clareza sintática.`;
+      setScore(evaluationScore);
+      setFeedback(evaluationFeedback);
 
       const today = new Date().toISOString().slice(0, 10);
       const nextCount = usageToday + 1;
       window.localStorage.setItem("redacai-usage", JSON.stringify({ date: today, count: nextCount }));
       setUsageToday(nextCount);
 
-      setScore(simulatedScore);
-      setFeedback(simulatedFeedback);
+      toast({
+        title: "Avaliação concluída!",
+        description: `Nota: ${evaluationScore}`,
+      });
+    } catch (error) {
+      console.error("Erro ao avaliar redação:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível processar sua redação. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
       setIsEvaluating(false);
-    }, 900);
+    }
   };
 
   const progressValue = useMemo(() => {
