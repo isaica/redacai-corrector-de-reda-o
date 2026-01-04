@@ -92,13 +92,26 @@ const Index = () => {
       }
 
       const data = await response.json();
-      
-      // Adapte conforme a estrutura de resposta do seu webhook
-      const evaluationScore = data.score || data.nota || 0;
-      const evaluationFeedback = data.feedback || data.avaliacao || "Avaliação processada com sucesso.";
 
-      setScore(evaluationScore);
-      setFeedback(evaluationFeedback);
+      // n8n retorna um array com objetos que possuem o campo `output`
+      const firstItem = Array.isArray(data) ? data[0] : data;
+      const output = firstItem?.output ?? firstItem ?? {};
+
+      const evaluationScore = Number(output["nota_geraç"]) || 0;
+      const pontosFortes = output.pontos_fortes as string | undefined;
+      const pontosMelhorar = output.pontos_a_melhorar as string | undefined;
+      const comentariosFinais = output.comentarios_finais as string | undefined;
+
+      const composedFeedback = [
+        pontosFortes && `Pontos fortes:\n${pontosFortes}`,
+        pontosMelhorar && `Pontos a melhorar:\n${pontosMelhorar}`,
+        comentariosFinais && `Comentários finais:\n${comentariosFinais}`,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
+      setScore(evaluationScore || null);
+      setFeedback(composedFeedback || "Avaliação processada com sucesso.");
 
       const today = new Date().toISOString().slice(0, 10);
       const nextCount = usageToday + 1;
