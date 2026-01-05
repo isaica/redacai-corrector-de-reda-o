@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 const FREE_DAILY_LIMIT = 2;
 
 const Index = () => {
+  const navigate = useNavigate();
   const [essay, setEssay] = useState("");
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -156,11 +158,11 @@ const Index = () => {
             <Badge variant="outline" className="hidden text-xs font-medium text-muted-foreground md:inline-flex">
               {remaining > 0 ? `${remaining} correções grátis hoje` : "Limite grátis de hoje usado"}
             </Badge>
-            <Button size="sm" variant="ghost" className="text-xs font-medium text-muted-foreground">
+            <Button size="sm" variant="ghost" className="text-xs font-medium text-muted-foreground" onClick={() => navigate("/auth")}>
               Entrar
             </Button>
             <Button size="sm" variant="hero" className="text-xs font-medium" onClick={handleOpenPlans}>
-              Ver planos
+              Assinar Plataforma
             </Button>
           </div>
         </div>
