@@ -234,12 +234,12 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <section aria-label="Resultado da correção" className="space-y-3">
+          <section aria-label="Resultado da correção" aria-busy={isEvaluating} className="space-y-3">
             <Card className="h-full border-dashed bg-secondary/50">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Avaliação da IA (exemplo fictício)</CardTitle>
+                <CardTitle className="text-sm font-medium">Avaliação da IA em tempo real</CardTitle>
                 <CardDescription className="text-xs">
-                  Em breve, esta análise será gerada em tempo real por IA conectada ao seu fluxo no n8n.
+                  Análise gerada automaticamente a partir da sua redação.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
