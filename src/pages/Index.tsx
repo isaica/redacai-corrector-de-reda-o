@@ -82,7 +82,7 @@ const Index = () => {
     setScore(null);
 
     try {
-      const response = await fetch("https://vehesel.app.n8n.cloud/webhook-test/f1561a92-e4da-4a41-b98d-e6e9a315a5a3", {
+      const response = await fetch("https://fekew.app.n8n.cloud/webhook-test/f1561a92-e4da-4a41-b98d-e6e9a315a5a3", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
