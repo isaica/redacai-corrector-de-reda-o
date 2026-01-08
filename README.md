@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**URL do projecto**: 
 
 ## How can I edit this code?
 
@@ -59,6 +59,9 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+
+## IDE
+- Lovable.dev
 
 ## How can I deploy this project?
 
